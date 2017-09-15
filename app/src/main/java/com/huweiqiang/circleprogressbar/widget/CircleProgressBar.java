@@ -35,12 +35,15 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
     private RectF arcRectF;
     private GestureDetector gestureDetector;
 
+    private int max = 100;
     private int progress = 68;
     private int color = DEFAULT_COLOR;
     private float textSize = DEFAULT_TEXT_SIZE;
     private float circleWidth = DEFAULT_CIRCLE_WIDTH;
 
-    private boolean isNeedReset = false;
+    private double oldDegree = 0;
+    private float oldX;
+    private float oldY;
 
     public CircleProgressBar(Context context) {
         this(context, null);
@@ -58,6 +61,7 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
 
     public void setProgress(int progress) {
         this.progress = progress;
+        oldDegree = progress * 360 / max;
         postInvalidate();
     }
 
@@ -68,14 +72,19 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
 
         TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.CircleProgressBar);
 
+        max = typedArray.getInteger(R.styleable.CircleProgressBar_max, 100);
+        if (max < 0) {
+            max = 0;
+        }
+
         progress = typedArray.getInteger(R.styleable.CircleProgressBar_progress, 0);
         if (progress < 0) {
             progress = 0;
         }
-        if (progress > 100) {
-            progress = 100;
+        if (progress > max) {
+            progress = max;
         }
-
+        setProgress(progress);
         color = typedArray.getColor(R.styleable.CircleProgressBar_color, DEFAULT_COLOR);
         textSize = typedArray.getDimensionPixelSize(R.styleable.CircleProgressBar_textSize, DEFAULT_TEXT_SIZE);
         circleWidth = typedArray.getDimensionPixelSize(R.styleable.CircleProgressBar_circleWidth, DEFAULT_CIRCLE_WIDTH);
@@ -140,7 +149,7 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
 
         drawBgCircle(canvas);
 
-        drawCircle(canvas, circleWidth, 270, progress * 360 / 100, circlePaint);
+        drawCircle(canvas, circleWidth, 270, progress * 360 / max, circlePaint);
 
         drawText(canvas);
     }
@@ -158,42 +167,46 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
     private void drawText(Canvas canvas) {
         textPaint.setTextSize(textSize);
 
-        String text = String.valueOf(progress);
+        String text = String.valueOf((int) (((double) progress / (double) max) * 100));
         float textWidth = textPaint.measureText(text);
 
-        canvas.drawText(text, centerX - textWidth / 2, centerY - (textPaint.ascent() + textPaint.descent()) / 2, textPaint);
+        float ascent = textPaint.ascent();
+        float descent = textPaint.descent();
+        float y = centerY - (ascent + descent) / 2;
+        canvas.drawText(text, centerX - textWidth / 2, y, textPaint);
 
         textPaint.setTextSize(textSize / 2);
-        canvas.drawText("%", centerX + textWidth / 2, centerY - (textPaint.ascent() + textPaint.descent()) / 2, textPaint);
+        canvas.drawText("%", centerX + textWidth / 2, y, textPaint);
     }
 
-    private void move(float distanceX, float distanceY) {
+    private void move(float startX, float startY, float endX, float endY) {
         double degree = -1;
 
-        if (distanceX >= centerX && distanceY < centerY) {
-            degree = computeDegree(distanceX - centerX, centerY - distanceY);
-        } else if (distanceX >= centerX && distanceY > centerY) {
-            degree = computeDegree(distanceY - centerY, distanceX - centerX) + 90;
-        } else if (distanceX <= centerX && distanceY > centerY) {
-            degree = computeDegree(centerX - distanceX, distanceY - centerY) + 180;
-        } else if (distanceX <= centerX && distanceY < centerY) {
-            degree = computeDegree(centerY - distanceY, centerX - distanceX) + 270;
+        if (endX >= centerX && endY < centerY) {
+            degree = computeDegree(endX - centerX, centerY - endY);
+        } else if (endX >= centerX && endY > centerY) {
+            degree = computeDegree(endY - centerY, endX - centerX) + 90;
+        } else if (endX <= centerX && endY > centerY) {
+            degree = computeDegree(centerX - endX, endY - centerY) + 180;
+        } else if (endX <= centerX && endY < centerY) {
+            degree = computeDegree(centerY - endY, centerX - endX) + 270;
         }
 
-        if ((int) distanceX == centerX) {
+        if (oldDegree > 270 && Math.abs(endX - centerX) < 1 && endY < centerY) {
             degree = 360;
-            isNeedReset = true;
         }
 
-        if (isNeedReset && degree < 90) {
+        boolean isClockwise = Utils.isClockwise(startX, startY, endX, endY, centerX, centerY);
+        if ((oldDegree == 360 && isClockwise) || (oldDegree == 0 && !isClockwise)
+                || (oldDegree == 360 && degree >= 0 && degree < 270 && !isClockwise)
+                || (oldDegree == 0 && degree >= 90 && isClockwise)) {
             return;
         }
 
-        Log.d("tag", "centerX:" + centerX + ",distanceX:" + distanceX);
         if (degree == -1) {
             return;
         }
-        setProgress((int) (degree * 100 / 360));
+        setProgress((int) (degree * max / 360));
     }
 
     private double computeDegree(float opposite, float adjacent) {
@@ -207,7 +220,8 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
 
     @Override
     public boolean onDown(MotionEvent e) {
-        isNeedReset = false;
+        oldX = e.getX();
+        oldY = e.getY();
         return true;
     }
 
@@ -222,7 +236,10 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        move(e2.getX(), e2.getY());
+        move(oldX, oldY, e2.getX(), e2.getY());
+
+        oldX = e2.getX();
+        oldY = e2.getY();
         return true;
     }
 

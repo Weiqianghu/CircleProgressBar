@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,7 +14,53 @@
         android:background="@color/colorPrimary"
         app:circleWidth="10dp"
         app:color="@color/colorAccent"
-        app:progress="60"
-        app:textSize="30sp"/>
+        app:max="300"
+        app:progress="90"
+        app:textSize="50sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <com.huweiqiang.circleprogressbar.widget.CircleProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimaryDark"
+            app:circleWidth="6dp"
+            app:color="@android:color/white"
+            app:max="100"
+            app:progress="67"
+            app:textSize="30sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.huweiqiang.circleprogressbar.widget.CircleProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/holo_blue_dark"
+                app:circleWidth="6dp"
+                app:color="@android:color/white"
+                app:max="200"
+                app:progress="90"
+                app:textSize="30sp" />
+
+            <com.huweiqiang.circleprogressbar.widget.CircleProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/holo_red_light"
+                android:padding="10dp"
+                app:circleWidth="12dp"
+                app:color="@android:color/white"
+                app:max="500"
+                app:progress="90"
+                app:textSize="40sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
 
 </LinearLayout>

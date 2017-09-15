@@ -17,4 +17,8 @@ class Utils {
     public static float sp2px(float sp) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, Resources.getSystem().getDisplayMetrics());
     }
+
+    public static boolean isClockwise(float startX, float startY, float endX, float endY, float centerX, float centerY) {
+        return (startX - centerX) * (endY - centerY) - (startY - centerY) * (endX - centerX) > 0;
+    }
 }
