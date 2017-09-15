@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -25,6 +26,8 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
     private static final int DEFAULT_COLOR = Color.WHITE;
     private static final int DEFAULT_TEXT_SIZE = (int) Utils.sp2px(20);
     private static final int DEFAULT_CIRCLE_WIDTH = (int) Utils.dp2px(6);
+
+    private String suffix = "%";
 
     private float radius = 0;
     private float centerX;
@@ -165,18 +168,19 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
     }
 
     private void drawText(Canvas canvas) {
-        textPaint.setTextSize(textSize);
+        textPaint.setTextSize(textSize / 2);
+        float suffixWidth = textPaint.measureText(suffix);
 
+        textPaint.setTextSize(textSize);
         String text = String.valueOf((int) (((double) progress / (double) max) * 100));
         float textWidth = textPaint.measureText(text);
 
-        float ascent = textPaint.ascent();
-        float descent = textPaint.descent();
-        float y = centerY - (ascent + descent) / 2;
-        canvas.drawText(text, centerX - textWidth / 2, y, textPaint);
+        float x = centerX - (textWidth + suffixWidth) / 2;
+        float y = centerY - (textPaint.ascent() + textPaint.descent()) / 2;
+        canvas.drawText(text, x, y, textPaint);
 
         textPaint.setTextSize(textSize / 2);
-        canvas.drawText("%", centerX + textWidth / 2, y, textPaint);
+        canvas.drawText(suffix, x + textWidth + Utils.dp2px(2), y, textPaint);
     }
 
     private void move(float startX, float startY, float endX, float endY) {

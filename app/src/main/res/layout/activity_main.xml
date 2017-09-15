@@ -57,7 +57,7 @@
                 app:color="@android:color/white"
                 app:max="500"
                 app:progress="90"
-                app:textSize="40sp" />
+                app:textSize="60sp" />
         </LinearLayout>
 
     </LinearLayout>
