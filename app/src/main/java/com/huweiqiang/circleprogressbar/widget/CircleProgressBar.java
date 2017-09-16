@@ -7,9 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,8 +24,7 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
     private static final int DEFAULT_COLOR = Color.WHITE;
     private static final int DEFAULT_TEXT_SIZE = (int) Utils.sp2px(20);
     private static final int DEFAULT_CIRCLE_WIDTH = (int) Utils.dp2px(6);
-
-    private String suffix = "%";
+    private static final String SUFFIX = "%";
 
     private float radius = 0;
     private float centerX;
@@ -44,7 +41,7 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
     private float textSize = DEFAULT_TEXT_SIZE;
     private float circleWidth = DEFAULT_CIRCLE_WIDTH;
 
-    private double oldDegree = 0;
+    private double oldRatio = 0;
     private float oldX;
     private float oldY;
 
@@ -63,8 +60,11 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
     }
 
     public void setProgress(int progress) {
+        if (progress > max) {
+            progress = max;
+        }
         this.progress = progress;
-        oldDegree = progress * 360 / max;
+        oldRatio = computeRatio(progress, max);
         postInvalidate();
     }
 
@@ -152,7 +152,7 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
 
         drawBgCircle(canvas);
 
-        drawCircle(canvas, circleWidth, 270, progress * 360 / max, circlePaint);
+        drawCircle(canvas, circleWidth, 270, computeRatio(progress, max) * 360 / 100, circlePaint);
 
         drawText(canvas);
     }
@@ -169,10 +169,10 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
 
     private void drawText(Canvas canvas) {
         textPaint.setTextSize(textSize / 2);
-        float suffixWidth = textPaint.measureText(suffix);
+        float suffixWidth = textPaint.measureText(SUFFIX);
 
         textPaint.setTextSize(textSize);
-        String text = String.valueOf((int) (((double) progress / (double) max) * 100));
+        String text = String.valueOf(computeRatio(progress, max));
         float textWidth = textPaint.measureText(text);
 
         float x = centerX - (textWidth + suffixWidth) / 2;
@@ -180,9 +180,19 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
         canvas.drawText(text, x, y, textPaint);
 
         textPaint.setTextSize(textSize / 2);
-        canvas.drawText(suffix, x + textWidth + Utils.dp2px(2), y, textPaint);
+        canvas.drawText(SUFFIX, x + textWidth + Utils.dp2px(2), y, textPaint);
     }
 
+    /**
+     * 1.快速滑动时校正 （快速滑动时有可能不能到达 100 和 0）
+     * 2.到达 100 之后不能再顺时针滑动增加
+     * 3.到达 0 之后不能逆时针减少
+     *
+     * @param startX startX
+     * @param startY startY
+     * @param endX   endX
+     * @param endY   endY
+     */
     private void move(float startX, float startY, float endX, float endY) {
         double degree = -1;
 
@@ -196,14 +206,22 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
             degree = computeDegree(centerY - endY, centerX - endX) + 270;
         }
 
-        if (oldDegree > 270 && Math.abs(endX - centerX) < 1 && endY < centerY) {
+        boolean isClockwise = Utils.isClockwise(startX, startY, endX, endY, centerX, centerY);
+
+        if (oldRatio >= 75 && isClockwise && degree < 90) {
             degree = 360;
         }
 
-        boolean isClockwise = Utils.isClockwise(startX, startY, endX, endY, centerX, centerY);
-        if ((oldDegree == 360 && isClockwise) || (oldDegree == 0 && !isClockwise)
-                || (oldDegree == 360 && degree >= 0 && degree < 270 && !isClockwise)
-                || (oldDegree == 0 && degree >= 90 && isClockwise)) {
+        if (oldRatio <= 25 && !isClockwise && degree > 270) {
+            degree = 0;
+        }
+
+        if ((oldRatio >= 75 && isClockwise && degree >= 0 && degree < 90) ||
+                (oldRatio == 100 && isClockwise) ||
+                (oldRatio <= 25 && !isClockwise && degree > 270 && degree <= 360) ||
+                (oldRatio == 0 && !isClockwise) ||
+                (oldRatio == 100 && degree >= 0 && degree < 270) ||
+                (oldRatio == 0 && degree >= 90)) {
             return;
         }
 
@@ -215,6 +233,10 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
 
     private double computeDegree(float opposite, float adjacent) {
         return Math.atan(opposite / adjacent) * 180 / Math.PI;
+    }
+
+    private int computeRatio(int progress, int max) {
+        return (int) ((double) progress / (double) max * 100);
     }
 
     @Override

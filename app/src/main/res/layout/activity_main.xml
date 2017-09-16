@@ -8,6 +8,7 @@
     tools:context="com.huweiqiang.circleprogressbar.MainActivity">
 
     <com.huweiqiang.circleprogressbar.widget.CircleProgressBar
+        android:id="@+id/progress1"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_gravity="center"
@@ -24,6 +25,7 @@
         android:orientation="horizontal">
 
         <com.huweiqiang.circleprogressbar.widget.CircleProgressBar
+            android:id="@+id/progress2"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@color/colorPrimaryDark"
@@ -39,6 +41,7 @@
             android:orientation="vertical">
 
             <com.huweiqiang.circleprogressbar.widget.CircleProgressBar
+                android:id="@+id/progress3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/holo_blue_dark"
@@ -49,6 +52,7 @@
                 app:textSize="30sp" />
 
             <com.huweiqiang.circleprogressbar.widget.CircleProgressBar
+                android:id="@+id/progress4"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/holo_red_light"
