@@ -89,8 +89,8 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
         }
         setProgress(progress);
         color = typedArray.getColor(R.styleable.CircleProgressBar_color, DEFAULT_COLOR);
-        textSize = typedArray.getDimensionPixelSize(R.styleable.CircleProgressBar_textSize, DEFAULT_TEXT_SIZE);
-        circleWidth = typedArray.getDimensionPixelSize(R.styleable.CircleProgressBar_circleWidth, DEFAULT_CIRCLE_WIDTH);
+        textSize = typedArray.getDimensionPixelSize(R.styleable.CircleProgressBar_text_size, DEFAULT_TEXT_SIZE);
+        circleWidth = typedArray.getDimensionPixelSize(R.styleable.CircleProgressBar_circle_width, DEFAULT_CIRCLE_WIDTH);
         typedArray.recycle();
     }
 

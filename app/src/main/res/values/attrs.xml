@@ -4,7 +4,7 @@
         <attr name="max" format="integer"/>
         <attr name="progress" format="integer"/>
         <attr name="color" format="color"/>
-        <attr name="textSize" format="dimension"/>
-        <attr name="circleWidth" format="dimension"/>
+        <attr name="text_size" format="dimension"/>
+        <attr name="circle_width" format="dimension"/>
     </declare-styleable>
 </resources>
