@@ -36,7 +36,7 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
     private GestureDetector gestureDetector;
 
     private int max = 100;
-    private int progress = 68;
+    private int progress = 0;
     private int color = DEFAULT_COLOR;
     private float textSize = DEFAULT_TEXT_SIZE;
     private float circleWidth = DEFAULT_CIRCLE_WIDTH;
@@ -60,11 +60,14 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
     }
 
     public void setProgress(int progress) {
+        if (progress < 0) {
+            progress = 0;
+        }
         if (progress > max) {
             progress = max;
         }
         this.progress = progress;
-        oldRatio = computeRatio(progress, max);
+        oldRatio = computeRatio(this.progress, max);
         postInvalidate();
     }
 
@@ -80,14 +83,7 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
             max = 0;
         }
 
-        progress = typedArray.getInteger(R.styleable.CircleProgressBar_progress, 0);
-        if (progress < 0) {
-            progress = 0;
-        }
-        if (progress > max) {
-            progress = max;
-        }
-        setProgress(progress);
+        setProgress(typedArray.getInteger(R.styleable.CircleProgressBar_progress, 0));
         color = typedArray.getColor(R.styleable.CircleProgressBar_color, DEFAULT_COLOR);
         textSize = typedArray.getDimensionPixelSize(R.styleable.CircleProgressBar_text_size, DEFAULT_TEXT_SIZE);
         circleWidth = typedArray.getDimensionPixelSize(R.styleable.CircleProgressBar_circle_width, DEFAULT_CIRCLE_WIDTH);
