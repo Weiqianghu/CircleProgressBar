@@ -25,8 +25,10 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
     private static final int DEFAULT_TEXT_SIZE = (int) Utils.sp2px(20);
     private static final int DEFAULT_CIRCLE_WIDTH = (int) Utils.dp2px(6);
     private static final String SUFFIX = "%";
+    private static final int DEFAULT_MAX = 100;
+    private static final int DEFAULT_PROGRESS = 0;
 
-    private float radius = 0;
+    private float radius;
     private float centerX;
     private float centerY;
 
@@ -35,13 +37,13 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
     private RectF arcRectF;
     private GestureDetector gestureDetector;
 
-    private int max = 100;
-    private int progress = 0;
+    private int max = DEFAULT_MAX;
+    private int progress = DEFAULT_PROGRESS;
     private int color = DEFAULT_COLOR;
     private float textSize = DEFAULT_TEXT_SIZE;
     private float circleWidth = DEFAULT_CIRCLE_WIDTH;
 
-    private double oldRatio = 0;
+    private double oldRatio;
     private float oldX;
     private float oldY;
 
@@ -78,12 +80,12 @@ public class CircleProgressBar extends View implements GestureDetector.OnGesture
 
         TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.CircleProgressBar);
 
-        max = typedArray.getInteger(R.styleable.CircleProgressBar_max, 100);
+        max = typedArray.getInteger(R.styleable.CircleProgressBar_max, DEFAULT_MAX);
         if (max < 0) {
             max = 0;
         }
 
-        setProgress(typedArray.getInteger(R.styleable.CircleProgressBar_progress, 0));
+        setProgress(typedArray.getInteger(R.styleable.CircleProgressBar_progress, DEFAULT_PROGRESS));
         color = typedArray.getColor(R.styleable.CircleProgressBar_color, DEFAULT_COLOR);
         textSize = typedArray.getDimensionPixelSize(R.styleable.CircleProgressBar_text_size, DEFAULT_TEXT_SIZE);
         circleWidth = typedArray.getDimensionPixelSize(R.styleable.CircleProgressBar_circle_width, DEFAULT_CIRCLE_WIDTH);
